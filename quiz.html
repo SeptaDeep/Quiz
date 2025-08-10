@@ -1,9 +1,13 @@
 <div class="quiz-container">
   <div id="question-box">
     <div class="quiz-header">
-      <div id="question-text"></div>
+      <div id="progress-bar-wrap">
+        <div id="progress-label"></div>
+        <div id="progress-bar"><div id="progress"></div></div>
+      </div>
       <div id="timer"></div>
     </div>
+    <div id="question-text"></div>
     <ul id="options-list"></ul>
     <div id="feedback"></div>
     <div id="correct-answer"></div>
@@ -23,31 +27,139 @@
   padding:20px;
   background:#ffffff;
   border-radius:10px;
-  box-shadow:0px 4px 10px rgba(0,0,0,0.1);
+  box-shadow:0px 4px 12px rgba(0,0,0,0.11);
   font-family:"Poppins",sans-serif;
 }
-.quiz-header{display:flex;justify-content:space-between;align-items:center;font-weight:bold;margin-bottom:10px;}
-#question-text{font-size:1.1rem;color:#333;}
-#timer{color:#d32f2f;font-size:1rem;}
-#options-list{list-style:none;padding:0;margin-top:10px;}
-#options-list li{margin-bottom:8px;}
-#options-list button{width:100%;padding:10px;border:none;border-radius:6px;background:#f0f0f0;font-size:0.95rem;cursor:pointer;text-align:left;transition:0.3s;}
-#options-list button:hover{background:#e0e0e0;}
-#feedback{font-weight:bold;margin-top:12px;}
-#correct-answer{font-weight:bold;margin-top:5px;color:blue;}
-#next-btn,#retry-btn{margin-top:15px;background:#1976d2;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-size:0.95rem;}
-#next-btn:hover,#retry-btn:hover{background:#125a9e;}
+.quiz-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:600;
+  margin-bottom:15px;
+}
+#timer{
+  color:#d32f2f;
+  font-size:1rem;
+  margin-left:20px;
+  min-width:90px;
+}
+#progress-bar-wrap{
+  flex:1;
+  margin-right:15px;
+}
+#progress-label{
+  font-size:0.97rem;
+  color:#444;
+  margin-bottom:4px;
+  font-weight:500;
+}
+#progress-bar{
+  background:#e0e0e0;
+  border-radius:6px;
+  width:100%;
+  height:9px;
+  overflow:hidden;
+  margin-bottom:2px;
+}
+#progress{
+  height:100%;
+  background:#1976d2;
+  width:0%;
+  transition:width 0.45s cubic-bezier(.4,0,.2,1);
+  border-radius:6px;
+}
+#question-text{
+  font-size:1.13rem;
+  color:#222;
+  font-weight:600;
+  margin-bottom:14px;
+  margin-top:8px;
+}
+#options-list{
+  list-style:none;
+  padding:0;
+  margin-bottom:8px;
+}
+#options-list li{
+  margin-bottom:9px;
+}
+#options-list button{
+  width:100%;
+  padding:11px;
+  border:none;
+  border-radius:7px;
+  background:#f3f5fa;
+  font-size:0.99rem;
+  color:#2d2d2d;
+  cursor:pointer;
+  text-align:left;
+  box-shadow:0 1px 4px rgba(0,0,0,.07);
+  transition:0.2s;
+}
+#options-list button:hover{
+  background:#dde7f2;
+}
+#feedback{
+  font-weight:600;
+  margin-top:12px;
+  font-size:1.05rem;
+}
+#correct-answer{
+  font-size:0.98rem;
+  font-weight:600;
+  margin-top:5px;
+  color:#1754a7;
+}
+#next-btn,#retry-btn{
+  margin-top:18px;
+  background:#1976d2;
+  color:#fff;
+  border:none;
+  padding:11px 18px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:0.98rem;
+  box-shadow:0 2px 6px rgba(0,0,0,0.09);
+}
+#next-btn:hover,#retry-btn:hover{
+  background:#1356ac;
+}
+@media(max-width:440px){
+  .quiz-container{padding:7px;}
+  #next-btn,#retry-btn{padding:10px;}
+}
 </style>
 
 <script>
 const quizData = [
-{ q:"उपयोगिता का अर्थ है –", options:[{text:"वस्तु की भौतिक मात्रा",correct:false},{text:"वस्तु की कीमत",correct:false},{text:"आवश्यकता की पूर्ति करने की क्षमता",correct:true},{text:"वस्तुओं का उत्पादन",correct:false}] },
-{ q:"गणनावाचक उपयोगिता का विश्लेषण किस अर्थशास्त्री ने किया?", options:[{text:"मार्शल",correct:true},{text:"हिक्स",correct:false},{text:"रोबिन्स",correct:false},{text:"रिकार्डो",correct:false}] },
-// ... बाकी प्रश्न इसी तरह डाल सकते हैं
+{ q:"इब्न बतूता किस देश के यात्री थे?", options:[{text:"भारत",correct:false},{text:"चीन",correct:false},{text:"मोरक्को",correct:true},{text:"तुर्की",correct:false}] },
+{ q:"इब्न बतूता भारत की यात्रा किस सदी में आए थे?", options:[{text:"आठवीं",correct:false},{text:"दसवीं",correct:false},{text:"चौदहवीं",correct:true},{text:"सत्रहवीं",correct:false}] },
+{ q:"इब्न बतूता ने किस शासक के दरबार में सेवाएँ दी थीं?", options:[{text:"बबर",correct:false},{text:"मुहम्मद बिन तुगलक",correct:true},{text:"अकबर",correct:false},{text:"शेरशाह",correct:false}] },
+{ q:"बर्नियर किस देश के यात्री थे?", options:[{text:"पुर्तगाल",correct:false},{text:"फ्रांस",correct:true},{text:"इटली",correct:false},{text:"स्पेन",correct:false}] },
+{ q:"बर्नियर ने अपनी रचनाओं में अधिक ध्यान किस साम्राज्य पर केंद्रित किया?", options:[{text:"गुप्त",correct:false},{text:"चोल",correct:false},{text:"मुगल",correct:true},{text:"मराठा",correct:false}] },
+{ q:"कौन-सा यात्री चीन से भारत आया था?", options:[{text:"फाह्यान",correct:true},{text:"मार्कोपोलो",correct:false},{text:"इब्न बतूता",correct:false},{text:"बर्नियर",correct:false}] },
+{ q:"अल बरूनी किस भाषा के विद्वान थे?", options:[{text:"हिंदी",correct:false},{text:"अरबी",correct:false},{text:"फारसी",correct:true},{text:"अंग्रेजी",correct:false}] },
+{ q:"भारत का सामाजिक जीवन किस यात्री ने विस्तार से लिखा?", options:[{text:"इब्न बतूता",correct:false},{text:"मार्कोपोलो",correct:false},{text:"बर्नियर",correct:false},{text:"अल बरूनी",correct:true}] },
+{ q:"मार्कोपोलो किस देश के व्यापारी और यात्री थे?", options:[{text:"चीन",correct:false},{text:"इटली",correct:true},{text:"स्पेन",correct:false},{text:"फ्रांस",correct:false}] },
+{ q:"फाह्यान ने भारत की यात्रा किस उद्देश्य से की थी?", options:[{text:"व्यापार",correct:false},{text:"शासकीय",correct:false},{text:"धार्मिक अध्ययन",correct:true},{text:"कृषि अध्ययन",correct:false}] },
+{ q:"किस यात्री ने भारत में जाति-प्रथा का उल्लेख किया?", options:[{text:"फाह्यान",correct:false},{text:"अल बरूनी",correct:true},{text:"मार्कोपोलो",correct:false},{text:"बर्नियर",correct:false}] },
+{ q:"इब्न बतूता भारत में कितने वर्षों तक रहे?", options:[{text:"3",correct:false},{text:"5",correct:false},{text:"8",correct:true},{text:"10",correct:false}] },
+{ q:"भारत के किस क्षेत्र में फाह्यान ने अधिक समय बिताया?", options:[{text:"दक्षिण भारत",correct:false},{text:"मध्य भारत",correct:false},{text:"उत्तर भारत",correct:true},{text:"पूर्वी भारत",correct:false}] },
+{ q:"किस यात्री ने दिल्ली के बाजारों का उल्लेख किया?", options:[{text:"मार्कोपोलो",correct:false},{text:"बर्नियर",correct:false},{text:"इब्न बतूता",correct:true},{text:"फाह्यान",correct:false}] },
+{ q:"इब्न बतूता की यात्रा-विवरण किस पुस्तक में संकलित है?", options:[{text:"यात्रा-नाम",correct:false},{text:"रिह्ला",correct:true},{text:"इंडिका",correct:false},{text:"ट्रैवल ऑफ़ इण्डिया",correct:false}] },
+{ q:"बर्नियर ने किस विषय पर भारत और यूरोप की तुलना की?", options:[{text:"कृषि",correct:false},{text:"समाज",correct:true},{text:"चिकित्सा",correct:false},{text:"शिक्षा",correct:false}] },
+{ q:"किस यात्री ने अपने लेखन में भारतीय महिलाओं की स्थिति का उल्लेख किया?", options:[{text:"फाह्यान",correct:false},{text:"बर्नियर",correct:true},{text:"मार्कोपोलो",correct:false},{text:"अल बरूनी",correct:false}] },
+{ q:"किस यात्री के विवरण से हमें भारतीय समाज के स्वास्थ्य और चिकित्सा का ज्ञान मिलता है?", options:[{text:"इब्न बतूता",correct:false},{text:"अल बरूनी",correct:false},{text:"बर्नियर",correct:true},{text:"फाह्यान",correct:false}] },
+{ q:"फाह्यान किस काल में भारत आए थे?", options:[{text:"गुप्त काल",correct:true},{text:"मुगल काल",correct:false},{text:"तुगलक काल",correct:false},{text:"मराठा काल",correct:false}] },
+{ q:"बर्नियर ने भारत के किस सम्राट का शासन देखा?", options:[{text:"अकबर",correct:false},{text:"शेरशाह",correct:false},{text:"औरंगजेब",correct:true},{text:"मोहम्मद तुगलक",correct:false}] },
+{ q:"मार्कोपोलो भारत किस उद्देश्य से आए थे?", options:[{text:"शिक्षा",correct:false},{text:"व्यापार",correct:true},{text:"धार्मिक यात्रा",correct:false},{text:"प्रशासन",correct:false}] },
+{ q:"किस यात्री ने अंडमान निकोबार द्वीप समूह का उल्लेख किया?", options:[{text:"फाह्यान",correct:false},{text:"बर्नियर",correct:false},{text:"मार्कोपोलो",correct:true},{text:"इब्न बतूता",correct:false}] },
+{ q:"भारतीय शिल्पकला एवं निर्माण का उल्लेख किस यात्री ने किया?", options:[{text:"फाह्यान",correct:false},{text:"इब्न बतूता",correct:true},{text:"बर्नियर",correct:false},{text:"अल बरूनी",correct:false}] },
+{ q:"किस यात्री ने सभी जातियों के वर्णन के साथ उनका समाज में स्थान बताया?", options:[{text:"अल बरूनी",correct:true},{text:"बर्नियर",correct:false},{text:"इब्न बतूता",correct:false},{text:"मार्कोपोलो",correct:false}] },
+{ q:"यात्रियों के विस्तृत यात्रा-विवरणों से क्या लाभ मिलता है?", options:[{text:"पुराने रहन-सहन का ज्ञान",correct:false},{text:"विदेशी शासन की जानकारी",correct:false},{text:"भारतीय समाज का विस्तृत स्वरूप",correct:true},{text:"केवल धार्मिक ज्ञान",correct:false}] }
 ];
 
 let index=0,score=0,timeLeft=15,timerInterval;
-
 const questionText=document.getElementById("question-text");
 const optionsList=document.getElementById("options-list");
 const feedback=document.getElementById("feedback");
@@ -58,6 +170,8 @@ const scoreEl=document.getElementById("score");
 const totalEl=document.getElementById("total");
 const retryBtn=document.getElementById("retry-btn");
 const timerEl=document.getElementById("timer");
+const progress=document.getElementById("progress");
+const progressLabel=document.getElementById("progress-label");
 
 function startTimer(){
   clearInterval(timerInterval);
@@ -72,7 +186,7 @@ function startTimer(){
       feedback.textContent="⏰ समय समाप्त!";
       showCorrectAnswer();
       disableOptions();
-      setTimeout(autoNextQuestion, 1200); // 1.2 सेकंड बाद अपने आप अगला प्रश्न चलेगा
+      setTimeout(autoNextQuestion,1200);
     }
   },1000);
 }
@@ -92,6 +206,7 @@ function loadQuestion(){
     li.appendChild(btn);
     optionsList.appendChild(li);
   });
+  updateProgressBar();
   startTimer();
 }
 
@@ -134,6 +249,8 @@ function showResults(){
   resultBox.style.display="block";
   scoreEl.textContent=score;
   totalEl.textContent=quizData.length;
+  progress.style.width="100%";
+  progressLabel.textContent="25 / 25 प्रश्न पूरे!";
 }
 
 retryBtn.onclick=()=>{
@@ -141,6 +258,12 @@ retryBtn.onclick=()=>{
   document.getElementById("question-box").style.display="block";
   resultBox.style.display="none";
   loadQuestion();
+}
+
+function updateProgressBar(){
+  const percent=Math.round(((index)/quizData.length)*100);
+  progress.style.width=percent+"%";
+  progressLabel.textContent=`${index+1} / ${quizData.length} प्रश्न`;
 }
 
 loadQuestion();
