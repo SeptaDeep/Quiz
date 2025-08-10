@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>हिंदी क्विज़</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;}
+.quiz-container { max-width: 600px; margin: auto; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc;}
+#question-text { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; }
+#options-list { list-style: none; padding: 0; }
+#options-list li { margin-bottom: 8px; }
+#options-list button { width: 100%; padding: 10px; background: #ececec; border: none; border-radius: 5px; text-align: left; cursor: pointer; }
+#options-list button:hover { background: #d6d6d6; }
+#feedback { font-weight: bold; margin-top: 10px; }
+#next-btn { background: #1976d2; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; margin-top: 12px; }
+#next-btn:hover { background: #125a9e; }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div id="question-box">
+    <div id="question-text"></div>
+    <ul id="options-list"></ul>
+    <div id="feedback"></div>
+    <button id="next-btn" style="display:none;">अगला प्रश्न ➡</button>
+  </div>
+  <div id="result-box" style="display:none;">
+    <h3>🎉 क्विज़ समाप्त!</h3>
+    <p>आपका स्कोर: <span id="score"></span>/<span id="total"></span></p>
+  </div>
+</div>
+
+<script>
+const quizData = [
+  { q: "अंतर्राष्ट्रीय न्यायालय कहाँ स्थित है?", options: [
+      { text: "नीदरलैंड", correct: true, explain: "मुख्यालय हेग (नीदरलैंड) में है।" },
+      { text: "आयरलैंड", correct: false },
+      { text: "अमेरिका", correct: false },
+      { text: "न्यूजीलैंड", correct: false }
+  ]},
+  { q: "क्विक रिएक्शन सरफेस टू एयर मिसाईल (QRSAM) को किसने विकसित किया?", options: [
+      { text: "NASA (अमेरिका)", correct: false },
+      { text: "DRDO (भारत)", correct: true, explain: "डीआरडीओ ने भारतीय सेना के लिए QRSAM विकसित किया।" },
+      { text: "CNSA (चीन)", correct: false },
+      { text: "CNES (फ़्रांस)", correct: false }
+  ]},
+  { q: "तिनसुकिया कहां स्थित है?", options: [
+      { text: "कर्नाटक", correct: false },
+      { text: "तेलंगाना", correct: false },
+      { text: "असम", correct: true, explain: "असम में आयल इंडिया लिमिटेड ने प्राकृतिक गैस खोजी।" },
+      { text: "झारखण्ड", correct: false }
+  ]},
+  { q: "मोंट्रिक्स रिकॉर्ड किससे सम्बंधित है?", options: [
+      { text: "खतरे में स्थित वन्य जनजातियाँ", correct: false },
+      { text: "मानवजनित गतिविधियों के तहत खतरे में जलीय स्थान", correct: true, explain: "इसमें खतरे में जलीय क्षेत्रों का रिकॉर्ड रखा जाता है।" },
+      { text: "ग्लोबल वार्मिंग", correct: false },
+      { text: "इनमें से कोई नहीं", correct: false }
+  ]},
+  { q: "ओजोन परत की मोटाई मापने की इकाई है?", options: [
+      { text: "डोबसन", correct: true, explain: "ओजोन मोटाई की इकाई डोबसन है।" },
+      { text: "मेल्सन", correct: false },
+      { text: "मीटर", correct: false },
+      { text: "डेसिबल", correct: false }
+  ]},
+  { q: "जैवविविधता का अंतर्राष्ट्रीय कार्यालय कहाँ है?", options: [
+      { text: "न्यूयॉर्क", correct: false },
+      { text: "जेनेवा", correct: false },
+      { text: "रोम", correct: true, explain: "यह रोम में स्थित है।" },
+      { text: "पेरिस", correct: false }
+  ]},
+  { q: "सायबेरियन सारस भारत के किस राष्ट्रीय उद्यान में आते हैं?", options: [
+      { text: "केवलादेव (राजस्थान)", correct: true, explain: "यह राजस्थान के केवलादेव राष्ट्रीय उद्यान में आते हैं।" },
+      { text: "जिम कार्बेट (उत्तराखण्ड)", correct: false },
+      { text: "एरावीकुलम (केरल)", correct: false },
+      { text: "काजीरंगा (असम)", correct: false }
+  ]},
+  { q: "भारत का सर्वाधिक टाइगर रिजर्व वाला राज्य?", options: [
+      { text: "असम", correct: false },
+      { text: "कर्नाटक", correct: false },
+      { text: "मध्य प्रदेश", correct: true, explain: "मध्य प्रदेश में सबसे अधिक टाइगर रिजर्व हैं।" },
+      { text: "राजस्थान", correct: false }
+  ]},
+  { q: "कौन सा शहर टाइगर गेटवे ऑफ इंडिया कहलाता है?", options: [
+      { text: "ग्वालियर", correct: false },
+      { text: "भोपाल", correct: false },
+      { text: "हैदराबाद", correct: false },
+      { text: "नागपुर", correct: true, explain: "नागपुर को टाइगर गेटवे ऑफ इंडिया कहा जाता है।" }
+  ]},
+  { q: "क्लार्क बी बेविन पुरस्कार किससे सम्बन्धित है?", options: [
+      { text: "पर्यावरण संरक्षण", correct: false },
+      { text: "वन्य जीव सुरक्षा", correct: true, explain: "यह वन्य जीव सुरक्षा के लिए दिया जाता है।" },
+      { text: "जल संरक्षण", correct: false },
+      { text: "इनमें से कोई नहीं", correct: false }
+  ]}
+];
+
+let index = 0, score = 0;
+const questionText = document.getElementById("question-text");
+const optionsList = document.getElementById("options-list");
+const feedback = document.getElementById("feedback");
+const nextBtn = document.getElementById("next-btn");
+const resultBox = document.getElementById("result-box");
+const scoreEl = document.getElementById("score");
+const totalEl = document.getElementById("total");
+
+function loadQuestion() {
+  feedback.textContent = "";
+  nextBtn.style.display = "none";
+  const currentQ = quizData[index];
+  questionText.textContent = currentQ.q;
+  optionsList.innerHTML = "";
+  currentQ.options.forEach(opt => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.textContent = opt.text;
+    btn.onclick = () => handleAnswer(opt);
+    li.appendChild(btn);
+    optionsList.appendChild(li);
+  });
+}
+
+function handleAnswer(opt) {
+  Array.from(optionsList.querySelectorAll("button")).forEach(b => b.disabled = true);
+  if (opt.correct) { feedback.style.color = "green"; feedback.textContent = "✅ सही उत्तर! " + (opt.explain || ""); score++; }
+  else { feedback.style.color = "red"; feedback.textContent = "❌ गलत उत्तर! " + (opt.explain || ""); }
+  nextBtn.style.display = "inline-block";
+}
+
+nextBtn.onclick = () => {
+  index++;
+  if (index < quizData.length) loadQuestion();
+  else showResults();
+};
+
+function showResults() {
+  document.getElementById("question-box").style.display = "none";
+  resultBox.style.display = "block";
+  scoreEl.textContent = score;
+  totalEl.textContent = quizData.length;
+}
+loadQuestion();
+</script>
+</body>
+</html>
