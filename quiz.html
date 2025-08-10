@@ -1,145 +1,211 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-<meta charset="UTF-8">
-<title>हिंदी क्विज़</title>
-<style>
-body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px;}
-.quiz-container { max-width: 600px; margin: auto; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ccc;}
-#question-text { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; }
-#options-list { list-style: none; padding: 0; }
-#options-list li { margin-bottom: 8px; }
-#options-list button { width: 100%; padding: 10px; background: #ececec; border: none; border-radius: 5px; text-align: left; cursor: pointer; }
-#options-list button:hover { background: #d6d6d6; }
-#feedback { font-weight: bold; margin-top: 10px; }
-#next-btn { background: #1976d2; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; margin-top: 12px; }
-#next-btn:hover { background: #125a9e; }
-</style>
-</head>
-<body>
-
 <div class="quiz-container">
   <div id="question-box">
-    <div id="question-text"></div>
+    <div class="quiz-header">
+      <div id="question-text"></div>
+      <div id="timer"></div>
+    </div>
     <ul id="options-list"></ul>
     <div id="feedback"></div>
+    <div id="correct-answer"></div>
     <button id="next-btn" style="display:none;">अगला प्रश्न ➡</button>
   </div>
   <div id="result-box" style="display:none;">
     <h3>🎉 क्विज़ समाप्त!</h3>
     <p>आपका स्कोर: <span id="score"></span>/<span id="total"></span></p>
+    <button id="retry-btn">🔄 पुनः प्रयास करें</button>
   </div>
 </div>
 
+<style>
+.quiz-container{
+  max-width:700px;
+  margin:20px auto;
+  padding:20px;
+  background:#ffffff;
+  border-radius:10px;
+  box-shadow:0px 4px 10px rgba(0,0,0,0.1);
+  font-family:"Poppins",sans-serif;
+}
+.quiz-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+#question-text{
+  font-size:1.1rem;
+  color:#333;
+}
+#timer{
+  color:#d32f2f;
+  font-size:1rem;
+}
+#options-list{
+  list-style:none;
+  padding:0;
+  margin-top:10px;
+}
+#options-list li{
+  margin-bottom:8px;
+}
+#options-list button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#f0f0f0;
+  font-size:0.95rem;
+  cursor:pointer;
+  text-align:left;
+  transition:0.3s;
+}
+#options-list button:hover{
+  background:#e0e0e0;
+}
+#feedback{
+  font-weight:bold;
+  margin-top:12px;
+}
+#correct-answer{
+  font-weight:bold;
+  margin-top:5px;
+  color:blue;
+}
+#next-btn,#retry-btn{
+  margin-top:15px;
+  background:#1976d2;
+  color:#fff;
+  border:none;
+  padding:10px 16px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:0.95rem;
+}
+#next-btn:hover,#retry-btn:hover{
+  background:#125a9e;
+}
+</style>
+
 <script>
 const quizData = [
-  { q: "अंतर्राष्ट्रीय न्यायालय कहाँ स्थित है?", options: [
-      { text: "नीदरलैंड", correct: true, explain: "मुख्यालय हेग (नीदरलैंड) में है।" },
-      { text: "आयरलैंड", correct: false },
-      { text: "अमेरिका", correct: false },
-      { text: "न्यूजीलैंड", correct: false }
-  ]},
-  { q: "क्विक रिएक्शन सरफेस टू एयर मिसाईल (QRSAM) को किसने विकसित किया?", options: [
-      { text: "NASA (अमेरिका)", correct: false },
-      { text: "DRDO (भारत)", correct: true, explain: "डीआरडीओ ने भारतीय सेना के लिए QRSAM विकसित किया।" },
-      { text: "CNSA (चीन)", correct: false },
-      { text: "CNES (फ़्रांस)", correct: false }
-  ]},
-  { q: "तिनसुकिया कहां स्थित है?", options: [
-      { text: "कर्नाटक", correct: false },
-      { text: "तेलंगाना", correct: false },
-      { text: "असम", correct: true, explain: "असम में आयल इंडिया लिमिटेड ने प्राकृतिक गैस खोजी।" },
-      { text: "झारखण्ड", correct: false }
-  ]},
-  { q: "मोंट्रिक्स रिकॉर्ड किससे सम्बंधित है?", options: [
-      { text: "खतरे में स्थित वन्य जनजातियाँ", correct: false },
-      { text: "मानवजनित गतिविधियों के तहत खतरे में जलीय स्थान", correct: true, explain: "इसमें खतरे में जलीय क्षेत्रों का रिकॉर्ड रखा जाता है।" },
-      { text: "ग्लोबल वार्मिंग", correct: false },
-      { text: "इनमें से कोई नहीं", correct: false }
-  ]},
-  { q: "ओजोन परत की मोटाई मापने की इकाई है?", options: [
-      { text: "डोबसन", correct: true, explain: "ओजोन मोटाई की इकाई डोबसन है।" },
-      { text: "मेल्सन", correct: false },
-      { text: "मीटर", correct: false },
-      { text: "डेसिबल", correct: false }
-  ]},
-  { q: "जैवविविधता का अंतर्राष्ट्रीय कार्यालय कहाँ है?", options: [
-      { text: "न्यूयॉर्क", correct: false },
-      { text: "जेनेवा", correct: false },
-      { text: "रोम", correct: true, explain: "यह रोम में स्थित है।" },
-      { text: "पेरिस", correct: false }
-  ]},
-  { q: "सायबेरियन सारस भारत के किस राष्ट्रीय उद्यान में आते हैं?", options: [
-      { text: "केवलादेव (राजस्थान)", correct: true, explain: "यह राजस्थान के केवलादेव राष्ट्रीय उद्यान में आते हैं।" },
-      { text: "जिम कार्बेट (उत्तराखण्ड)", correct: false },
-      { text: "एरावीकुलम (केरल)", correct: false },
-      { text: "काजीरंगा (असम)", correct: false }
-  ]},
-  { q: "भारत का सर्वाधिक टाइगर रिजर्व वाला राज्य?", options: [
-      { text: "असम", correct: false },
-      { text: "कर्नाटक", correct: false },
-      { text: "मध्य प्रदेश", correct: true, explain: "मध्य प्रदेश में सबसे अधिक टाइगर रिजर्व हैं।" },
-      { text: "राजस्थान", correct: false }
-  ]},
-  { q: "कौन सा शहर टाइगर गेटवे ऑफ इंडिया कहलाता है?", options: [
-      { text: "ग्वालियर", correct: false },
-      { text: "भोपाल", correct: false },
-      { text: "हैदराबाद", correct: false },
-      { text: "नागपुर", correct: true, explain: "नागपुर को टाइगर गेटवे ऑफ इंडिया कहा जाता है।" }
-  ]},
-  { q: "क्लार्क बी बेविन पुरस्कार किससे सम्बन्धित है?", options: [
-      { text: "पर्यावरण संरक्षण", correct: false },
-      { text: "वन्य जीव सुरक्षा", correct: true, explain: "यह वन्य जीव सुरक्षा के लिए दिया जाता है।" },
-      { text: "जल संरक्षण", correct: false },
-      { text: "इनमें से कोई नहीं", correct: false }
-  ]}
+{ q:"उपयोगिता का अर्थ है –", options:[{text:"वस्तु की भौतिक मात्रा",correct:false},{text:"वस्तु की कीमत",correct:false},{text:"आवश्यकता की पूर्ति करने की क्षमता",correct:true},{text:"वस्तुओं का उत्पादन",correct:false}] },
+{ q:"गणनावाचक उपयोगिता का विश्लेषण किस अर्थशास्त्री ने किया?", options:[{text:"मार्शल",correct:true},{text:"हिक्स",correct:false},{text:"रोबिन्स",correct:false},{text:"रिकार्डो",correct:false}] },
+{ q:"‘सीमांत उपयोगिता घटने का नियम’ कब लागू होता है?", options:[{text:"अल्पकाल में",correct:true},{text:"दीर्घकाल में",correct:false},{text:"दोनों में",correct:false},{text:"कभी नहीं",correct:false}] },
+{ q:"क्रमवाचक उपयोगिता विश्लेषण की अवधारणा किसने दी?", options:[{text:"मार्शल",correct:false},{text:"हिक्स और एलेन",correct:true},{text:"स्मिथ",correct:false},{text:"एडम स्मिथ",correct:false}] },
+{ q:"उदासीनता वक्र किस प्रकार का होता है?", options:[{text:"ऊपर चढ़ता हुआ",correct:false},{text:"नीचे ढलता हुआ और मूल की ओर उन्नतोदर",correct:true},{text:"सीधी रेखा",correct:false},{text:"क्षैतिज रेखा",correct:false}] },
+{ q:"बजट रेखा को और किस नाम से जाना जाता है?", options:[{text:"उपभोक्ता रेखा",correct:false},{text:"कीमत रेखा",correct:true},{text:"माँग रेखा",correct:false},{text:"उपयोगिता रेखा",correct:false}] },
+{ q:"जब आय बढ़ती है तो बजट रेखा –", options:[{text:"दाईं ओर शिफ्ट होती है",correct:true},{text:"बाईं ओर शिफ्ट होती है",correct:false},{text:"स्थिर रहती है",correct:false},{text:"सीधी हो जाती है",correct:false}] },
+{ q:"सामान्य वस्तु वह है –", options:[{text:"जिसकी माँग आय बढ़ने पर घटे",correct:false},{text:"जिसकी माँग आय बढ़ने पर बढ़े",correct:true},{text:"जिसकी कीमत घटे तो माँग बढ़े",correct:false},{text:"जिसकी कीमत बढ़े तो माँग घटे",correct:false}] },
+{ q:"निम्नस्तरीय वस्तु का उदाहरण है –", options:[{text:"गेहूँ",correct:false},{text:"मोटा अनाज",correct:true},{text:"कार",correct:false},{text:"मोबाइल फोन",correct:false}] },
+{ q:"स्थानापन्न वस्तुओं के जोड़े का उदाहरण –", options:[{text:"कार-पेट्रोल",correct:false},{text:"चाय-कॉफी",correct:true},{text:"पेन-स्याही",correct:false},{text:"जूते-मोज़े",correct:false}] },
+{ q:"पूरक वस्तुओं का उदाहरण –", options:[{text:"कलम-पेंसिल",correct:false},{text:"कार-पेट्रोल",correct:true},{text:"चाय-कॉफी",correct:false},{text:"गेहूँ-चावल",correct:false}] },
+{ q:"माँग वक्र में गति किस कारण होती है?", options:[{text:"कीमत में परिवर्तन",correct:true},{text:"आय में परिवर्तन",correct:false},{text:"संबंधित वस्तु की कीमत",correct:false},{text:"उपभोक्ता की पसंद",correct:false}] },
+{ q:"माँग वक्र में शिफ्ट किस कारण होता है?", options:[{text:"केवल कीमत में परिवर्तन से",correct:false},{text:"कीमत के अलावा अन्य कारणों से",correct:true},{text:"कीमत स्थिर रहने से",correct:false},{text:"कीमत और मात्रा दोनों में कमी से",correct:false}] },
+{ q:"गिफिन वस्तु की विशेषता –", options:[{text:"कीमत घटने पर माँग घटती है",correct:true},{text:"कीमत बढ़ने पर माँग घटती है",correct:false},{text:"कीमत घटने पर माँग बढ़ती है",correct:false},{text:"कीमत से कोई फर्क नहीं",correct:false}] },
+{ q:"रैखिक माँग वक्र की दिशा में लोच –", options:[{text:"स्थिर रहती है",correct:false},{text:"अलग-अलग बिंदुओं पर बदलती रहती है",correct:true},{text:"अनंत",correct:false},{text:"शून्य",correct:false}] },
+{ q:"माँग की कीमत लोच का सूत्र –", options:[{text:"ΔQ ÷ ΔP",correct:false},{text:"(ΔQ/Q) ÷ (ΔP/P)",correct:true},{text:"P ÷ Q",correct:false},{text:"Q ÷ P",correct:false}] },
+{ q:"बिलकुल लोचदार माँग में लोच का मान –", options:[{text:"0",correct:false},{text:"1",correct:false},{text:"2",correct:false},{text:"∞",correct:true}] },
+{ q:"बिलकुल अल्प लोचदार माँग में लोच का मान –", options:[{text:"0",correct:true},{text:"1",correct:false},{text:"∞",correct:false},{text:"2",correct:false}] },
+{ q:"अगर लोच > 1 हो तो माँग कहलाती है –", options:[{text:"अधिक लोचदार",correct:true},{text:"कम लोचदार",correct:false},{text:"इकाई लोचदार",correct:false},{text:"अल्प लोचदार",correct:false}] },
+{ q:"लोच और व्यय के संबंध को किसने समझाया?", options:[{text:"हिक्स",correct:false},{text:"मार्शल",correct:true},{text:"रिकार्डो",correct:false},{text:"कीन्स",correct:false}] },
+{ q:"जब कीमत घटाकर कुल व्यय बढ़ता है, तब माँग की लोच –", options:[{text:"1",correct:false},{text:">1",correct:true},{text:"<1",correct:false},{text:"0",correct:false}] },
+{ q:"उदासीनता मानचित्र में जितना ऊँचा उदासीनता वक्र होगा –", options:[{text:"उतनी ही कम संतुष्टि",correct:false},{text:"उतनी ही अधिक संतुष्टि",correct:true},{text:"कोई फर्क नहीं",correct:false},{text:"यह स्थिर रहेगी",correct:false}] },
+{ q:"बजट रेखा की ढलान =", options:[{text:"Px/Py",correct:true},{text:"Py/Px",correct:false},{text:"MRS",correct:false},{text:"MUx/MUy",correct:false}] },
+{ q:"उपभोक्ता का संतुलन उदासीनता वक्र विश्लेषण में कब होता है?", options:[{text:"MRS = Px/Py",correct:true},{text:"MU = कीमत",correct:false},{text:"MU घट रहा हो",correct:false},{text:"कीमत घट रही हो",correct:false}] },
+{ q:"किसी वस्तु की लोच मापने में कौन सा कारक शामिल नहीं है?", options:[{text:"वस्तु की प्रकृति",correct:false},{text:"उपभोक्ता की आय",correct:false},{text:"उत्पादक की आय",correct:true},{text:"विकल्प वस्तु की उपलब्धता",correct:false}] }
 ];
 
-let index = 0, score = 0;
-const questionText = document.getElementById("question-text");
-const optionsList = document.getElementById("options-list");
-const feedback = document.getElementById("feedback");
-const nextBtn = document.getElementById("next-btn");
-const resultBox = document.getElementById("result-box");
-const scoreEl = document.getElementById("score");
-const totalEl = document.getElementById("total");
+let index=0,score=0,timeLeft=15,timerInterval;
 
-function loadQuestion() {
-  feedback.textContent = "";
-  nextBtn.style.display = "none";
-  const currentQ = quizData[index];
-  questionText.textContent = currentQ.q;
-  optionsList.innerHTML = "";
-  currentQ.options.forEach(opt => {
-    const li = document.createElement("li");
-    const btn = document.createElement("button");
-    btn.textContent = opt.text;
-    btn.onclick = () => handleAnswer(opt);
-    li.appendChild(btn);
-    optionsList.appendChild(li);
-  });
+const questionText=document.getElementById("question-text");
+const optionsList=document.getElementById("options-list");
+const feedback=document.getElementById("feedback");
+const correctAnswerDiv=document.getElementById("correct-answer");
+const nextBtn=document.getElementById("next-btn");
+const resultBox=document.getElementById("result-box");
+const scoreEl=document.getElementById("score");
+const totalEl=document.getElementById("total");
+const retryBtn=document.getElementById("retry-btn");
+const timerEl=document.getElementById("timer");
+
+function startTimer(){
+ clearInterval(timerInterval);
+ timeLeft=15;
+ timerEl.textContent="⏳ "+timeLeft+"s";
+ timerInterval=setInterval(()=>{
+   timeLeft--;
+   timerEl.textContent="⏳ "+timeLeft+"s";
+   if(timeLeft<=0){
+     clearInterval(timerInterval);
+     feedback.style.color="orange";
+     feedback.textContent="⏰ समय समाप्त!";
+     showCorrectAnswer();
+     disableOptions();
+     nextBtn.style.display="inline-block";
+   }
+ },1000);
 }
 
-function handleAnswer(opt) {
-  Array.from(optionsList.querySelectorAll("button")).forEach(b => b.disabled = true);
-  if (opt.correct) { feedback.style.color = "green"; feedback.textContent = "✅ सही उत्तर! " + (opt.explain || ""); score++; }
-  else { feedback.style.color = "red"; feedback.textContent = "❌ गलत उत्तर! " + (opt.explain || ""); }
-  nextBtn.style.display = "inline-block";
+function loadQuestion(){
+ feedback.textContent="";
+ correctAnswerDiv.textContent="";
+ nextBtn.style.display="none";
+ const currentQ=quizData[index];
+ questionText.textContent=(index+1)+". "+currentQ.q;
+ optionsList.innerHTML="";
+ currentQ.options.forEach(opt=>{
+   const li=document.createElement("li");
+   const btn=document.createElement("button");
+   btn.textContent=opt.text;
+   btn.onclick=()=>handleAnswer(opt,currentQ);
+   li.appendChild(btn);
+   optionsList.appendChild(li);
+ });
+ startTimer();
 }
 
-nextBtn.onclick = () => {
-  index++;
-  if (index < quizData.length) loadQuestion();
-  else showResults();
+function disableOptions(){
+ Array.from(optionsList.querySelectorAll("button")).forEach(b=>b.disabled=true);
+}
+
+function handleAnswer(opt,currentQ){
+ clearInterval(timerInterval);
+ disableOptions();
+ if(opt.correct){
+   feedback.style.color="green"; feedback.textContent="✅ सही उत्तर!";
+   score++;
+ }else{
+   feedback.style.color="red"; feedback.textContent="❌ गलत उत्तर!";
+   showCorrectAnswer(currentQ);
+ }
+ nextBtn.style.display="inline-block";
+}
+
+function showCorrectAnswer(q=quizData[index]){
+ let correctOpt=q.options.find(o=>o.correct);
+ correctAnswerDiv.textContent="सही उत्तर: "+correctOpt.text;
+}
+
+nextBtn.onclick=()=>{
+ index++;
+ if(index<quizData.length){ loadQuestion(); }
+ else{ showResults(); }
 };
 
-function showResults() {
-  document.getElementById("question-box").style.display = "none";
-  resultBox.style.display = "block";
-  scoreEl.textContent = score;
-  totalEl.textContent = quizData.length;
+function showResults(){
+ document.getElementById("question-box").style.display="none";
+ resultBox.style.display="block";
+ scoreEl.textContent=score;
+ totalEl.textContent=quizData.length;
 }
+
+retryBtn.onclick=()=>{
+ index=0; score=0;
+ document.getElementById("question-box").style.display="block";
+ resultBox.style.display="none";
+ loadQuestion();
+}
+
 loadQuestion();
 </script>
-</body>
-</html>
